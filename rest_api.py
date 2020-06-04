@@ -1,5 +1,6 @@
 # import functions from the flask library
 from flask import Flask, jsonify, request, abort
+import json
 
 # create an app instance
 app = Flask(__name__)
@@ -20,7 +21,7 @@ devices = [
 
 
 # handle GET request
-@app.route('/api/devices/', methods=['GET'])
+@app.route('/api/netbox/', methods=['GET'])
 def get_devices():
     return jsonify({'tasks': devices})
 
@@ -28,12 +29,12 @@ def get_devices():
 # handle POST request
 ## Flask server should manage data in each service.
 ## so that Flask server has ip for posting netbox
-@app.route('/api/devices/', methods=['POST'])
-def post_device():
+@app.route('/api/netbox/', methods=['POST'])
+def post_from_git():
     #  check required parameters
     # if doesn't have all required parameters, return 404 error
-    if not request.json or 'name' not in request.json or 'ip' not in request.json:
-        abort(404)
+    if request.headers['Content-Type'] == 'application/json':
+        return json.dumps(request.json)
 
     # generate device obj
     device = {
@@ -45,11 +46,10 @@ def post_device():
     ## generate obj from git to post netbox here
     ## it will be parsed json format by pyATS or Napalm
 
-    # add device obj to devices resources
-    devices.append(device)
+
 
     ## Post to netbox from here
-    return jsonify({'task': devices}), 201
+
 
 
 
